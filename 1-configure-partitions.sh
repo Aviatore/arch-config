@@ -63,6 +63,7 @@ swapon /dev/mapper/vgArch-swap_1
 
 echo "--- Mounting the partitions ---"
 mount /dev/mapper/vgArch-root /mnt
+mkdir /mnt/boot
 mount /dev/mapper/LUKS_BOOT /mnt/boot
 
 echo "--- Install essential packages ---"
