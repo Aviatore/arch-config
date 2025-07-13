@@ -1,0 +1,66 @@
+echo ""
+
+echo "--- Configure timezone ---"
+timedatectl --set-timezone Europe/Warsaw
+
+# Set up of the encrypted partitions
+echo "--- Recreating partition table ---"
+
+sgdisk --zap-all $DEV
+sgdisk --new=1:0:+768M $DEV
+sgdisk --new=2:0:+2M $DEV
+sgdisk --new=3:0:+128M $DEV
+sgdisk --new=5:0:0 $DEV
+sgdisk --typecode=1:8301 --typecode=2:ef02 --typecode=3:ef00 --typecode=5:8301 $DEV
+sgdisk --change-name=1:/boot --change-name=2:GRUB --change-name=3:EFI-SP --change-name=5:rootfs $DEV
+sgdisk --hybrid 1:2:3 $DEV
+
+echo ""
+
+echo "--- New partition structure ---"
+sgdisk --print $DEV
+
+echo ""
+
+echo "--- Encrypt /boot partition ---"
+cryptsetup luksFormat --type=luks1 ${DEVP}1
+
+echo ""
+
+echo "--- Encrypt operating system partition ---"
+cryptsetup luksFormat ${DEVP}5
+
+echo ""
+
+echo "--- Opening encrypted partitions ---"
+cryptsetup open ${DEVP}1 LUKS_BOOT
+cryptsetup open ${DEVP}5 ${DM}5_crypt
+
+echo "--- Formatting the boot partition ---"
+mkfs.ext4 -L boot /dev/mapper/LUKS_BOOT
+
+echo "--- Formatting the EFI partition ---"
+mkfs.vfat -F 16 -n EFI-SP ${DEVP}3
+
+echo "--- Configuring the LVM ---"
+pvcreate /dev/mapper/${DM}5_crypt
+vgcreate vgArch /dev/mapper/${DM}5_crypt
+lvcreate -L ${RAM}G -n swap_1 vgArch
+lvcreate -l 80%FREE -n root vgArch
+
+echo "--- Formatting the root partition ---"
+mkfs.ext4 /dev/mapper/vgArch-root
+
+# Install Arch
+echo "--- Initialize the swap partition ---"
+swapon /dev/mapper/vgArch-swap_1
+
+echo "--- Mounting the partitions ---"
+mount /dev/mapper/vgArch-root /mnt
+mount /dev/mapper/LUKS_BOOT /mnt/boot
+
+echo "--- Install essential packages ---"
+pacstrap -K /mnt base linux linux-firmware
+
+echo "--- Generate the fstab file ---"
+genfstab -U /mnt >> /mnt/etc/fstab
