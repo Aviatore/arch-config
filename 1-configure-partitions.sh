@@ -1,5 +1,11 @@
 echo ""
 
+DEV=$1
+DM=${DEV##*/}
+DEVP="${DEV}$( if [[ "$DEV" =~ "nvme" ]]; then echo "p"; fi )"
+DM="${DM}$( if [[ "$DM" =~ "nvme" ]]; then echo "p"; fi )"
+RAM=$2
+
 echo "--- Configure timezone ---"
 timedatectl --set-timezone Europe/Warsaw
 
