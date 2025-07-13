@@ -25,6 +25,10 @@ mkinitcpio -P
 echo "--- Set the root password ---"
 passwd
 
+# Install the grub package
+echo "--- Install the grub package ---"
+pacman -S grub
+
 # Configure the boot loader
 echo "--- Configure the boot loader ---"
 uuid=`blkid -s UUID -o value /dev/sda5`
@@ -36,10 +40,6 @@ sed -i "s#GRUB_ENABLE_CRYPTODISK=.*#GRUB_ENABLE_CRYPTODISK=y#" /etc/default/grub
 echo "--- Update crypttab ---"
 echo "LUKS_BOOT UUID=$(blkid -s UUID -o value /dev/sda1) none luks,discard" >> /etc/crypttab
 echo "sda5_crypt UUID=$(blkid -s UUID -o value /dev/sda5) none luks,discard" >> /etc/crypttab
-
-# Install the grub package
-echo "--- Install the grub package ---"
-packman -S grub
 
 # Install grub
 echo "--- Install grub ---"
