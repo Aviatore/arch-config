@@ -68,6 +68,7 @@ read -p "Press ENTER to continue..." && echo ""
 
 # Install Arch
 echo "--- Initialize the swap partition ---"
+mkswap /dev/mapper/vgArch-swap_1
 swapon /dev/mapper/vgArch-swap_1
 
 echo "--- Mounting the partitions ---"

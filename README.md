@@ -133,3 +133,11 @@ grub-install /dev/sda
 ```bash
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
+
+# Post-installation
+1. Edit the `/etc/resolv.conf` file.
+2. Configure the systemd-networkd to get access to internet.
+3. Install NetworkManager (next stop systemd-networkd).
+4. Install sudo: `pacman -S sudo`.
+5. Edit the `/etc/sudoers` file by uncommenting the line: `%wheel ALL=(ALL:ALL) ALL`.
+6. Create a new user: `useradd -m -G wheel -s /usr/bin/bash aviatore`.

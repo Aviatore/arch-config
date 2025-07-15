@@ -2,7 +2,7 @@
 echo "--- Configure time ---"
 ln -sf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
 hwclock --systohc # It will create the /etc/adjtime file
-tiomedatectl set-ntp true
+timedatectl set-ntp true
 read -p "Press ENTER to continue..." && echo ""
 
 # Configure the locale
@@ -38,7 +38,7 @@ echo "--- Configure the boot loader ---"
 uuid=`blkid -s UUID -o value /dev/sda5`
 sed -i "s#GRUB_CMDLINE_LINUX=.*#GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${uuid}:sda5_crypt root=/dev/mapper/vgArch-root\"#" /etc/default/grub
 sed -i "s#GRUB_PRELOAD_MODULES=.*#GRUB_PRELOAD_MODULES=\"part_gpt part_msdos lvm\"#" /etc/default/grub
-sed -i "s#GRUB_ENABLE_CRYPTODISK=.*#GRUB_ENABLE_CRYPTODISK=y#" /etc/default/grub
+sed -i "s#\#GRUB_ENABLE_CRYPTODISK=.*#GRUB_ENABLE_CRYPTODISK=y#" /etc/default/grub
 read -p "Press ENTER to continue..." && echo ""
 
 # Update crypttab
